@@ -108,7 +108,7 @@ def add_args(parser):
     )
 
     parser.add_argument(
-        "--gpu_mapping_key", type=str, default="mapping_config_hui", help="the key in gpu utilization file"
+        "--gpu_mapping_key", type=str, default="mapping_default", help="the key in gpu utilization file"
     )
 
     parser.add_argument(
