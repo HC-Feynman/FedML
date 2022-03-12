@@ -59,6 +59,10 @@ https://wandb.ai/automl/fedml/runs/2dntp1tv?workspace=user-chaoyanghe-com
 ```
 sh run_fedavg_distributed_pytorch.sh 10 10 1 4 cnn hetero 100 1 20 0.1 femnist "./../../../data/FederatedEMNIST/datasets" sgd sgd GRPC grpc_ipconfig.csv 0
 
+The above is wrong, if you look at run_fedavg_distributed_pytorch.sh
+Correction by Hui:
+sh run_fedavg_distributed_pytorch.sh 3 3 cnn hetero 100 5 20 0.1  femnist "./../../../data/FederatedEMNIST/datasets" sgd  0
+
 ##run on background
 nohup sh run_fedavg_distributed_pytorch.sh 10 10 1 4 cnn hetero 100 10 20 0.1 femnist "./../../../data/FederatedEMNIST/datasets" sgd sgd GRPC grpc_ipconfig.csv 0 > ./fedavg-cnn-femnist.txt 2>&1 &
 ```
