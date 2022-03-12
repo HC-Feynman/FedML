@@ -8,8 +8,12 @@
 
 
 # this is used for 10 clients and 1 server training within a single machine which has 4 GPUs
+#mapping_default:
+#    ChaoyangHe-GPU-RTX2080Tix4: [3, 3, 3, 2]
+
+# for 3 clients with 1 server training with a single machine which has 1 GPU
 mapping_default:
-    ChaoyangHe-GPU-RTX2080Tix4: [3, 3, 3, 2]
+    AWS_1: [4]
 
 # this is used for 4 clients and 1 server training within a single machine which has 4 GPUs
 mapping_config1_5:
@@ -59,8 +63,3 @@ mapping_FedML_tRPC:
 
 #mapping_FedML_tRPC:
 #    lambda-server1: [0, 0, 0, 0, 3, 3, 3, 2]
-
-
-# I have one machine with one GPU
-mapping_config_hui:
-    host1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
