@@ -41,6 +41,7 @@ data/MNIST/test
 data/shakespeare/train
 data/shakespeare/test
 data/stackoverflow/datasets
+data/
 
 # android
 .gradle
@@ -51,9 +52,13 @@ fedml_mobile/android/build
 
 mimiconda.sh
 
+*.mpi_host_file
+
 
 data/fednlp/*
 
 *.npz
 
 *.jpg
+
+*mpi_host_file*
