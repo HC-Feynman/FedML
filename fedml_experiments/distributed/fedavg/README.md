@@ -90,6 +90,11 @@ train on non-IID dataset
 ```
 sh run_fedavg_distributed_pytorch.sh 10 10 resnet56 hetero 100 20 64 0.001 cifar10 "./../../../data/cifar10" adam 0
 
+Hui: Above seems correct, but I need to use smaller model and less clients
+sh run_fedavg_distributed_pytorch.sh 3 3 resnet56 hetero 100 5 20 0.001  cifar10 "./../../../data/cifar10" adam 0
+sh run_fedavg_distributed_pytorch.sh 3 3 moe hetero 100 5 20 0.001  cifar10 "./../../../data/cifar10" adam 0
+
+
 ##run on background
 nohup sh run_fedavg_distributed_pytorch.sh 10 10 resnet56 hetero 100 20 64 0.001 cifar10 "./../../../data/cifar10" adam 0 > ./fedavg-resnet-hetero-cifar10.txt 2>&1 &
 ```

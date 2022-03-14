@@ -31,6 +31,8 @@ from fedml_api.data_preprocessing.cifar10.data_loader import load_partition_data
 from fedml_api.data_preprocessing.cifar100.data_loader import load_partition_data_cifar100
 from fedml_api.data_preprocessing.cinic10.data_loader import load_partition_data_cinic10
 
+from moe.moe import MoE
+
 from fedml_api.model.cv.cnn import CNN_DropOut
 from fedml_api.model.cv.resnet_gn import resnet18
 from fedml_api.model.cv.mobilenet import mobilenet
@@ -107,14 +109,15 @@ def add_args(parser):
                         gpu_util_file, gpu will not be used.",
     )
 
-    parser.add_argument(
-        "--gpu_mapping_key", type=str, default="mapping_default", help="the key in gpu utilization file"
-    )
+    # parser.add_argument(
+    #     "--gpu_mapping_key", type=str, default="mapping_default", help="the key in gpu utilization file"
+    # )
 
     # to use CPU
-    # parser.add_argument(
-    #     "--gpu_mapping_key", type=str, default=None, help="the key in gpu utilization file"
-    # )
+
+    parser.add_argument(
+        "--gpu_mapping_key", type=str, default=None, help="the key in gpu utilization file"
+    )
 
     parser.add_argument(
         "--grpc_ipconfig_path",
@@ -129,6 +132,12 @@ def add_args(parser):
         default="trpc_master_config.csv",
         help="config indicating ip address and port of the master (rank 0) node",
     )
+
+
+    ## for MoE
+    parser.add_argument("--moe_num_experts", type=int, default=3,help="number of experts in MoE")
+    parser.add_argument("--moe_k", type=int, default=2, help="k in MoE")
+    parser.add_argument("--moe_hidden_size", type=int, default=128)
 
     parser.add_argument("--ci", type=int, default=0, help="CI")
     args = parser.parse_args()
@@ -356,7 +365,7 @@ def load_data(args, dataset_name):
     return dataset
 
 
-def create_model(args, model_name, output_dim):
+def create_model(args, model_name, output_dim, device=None):
     logging.info("create_model. model_name = %s, output_dim = %s" % (model_name, output_dim))
     model = None
     if model_name == "lr" and args.dataset == "mnist":
@@ -368,6 +377,8 @@ def create_model(args, model_name, output_dim):
     elif model_name == "cnn" and args.dataset == "femnist":
         logging.info("CNN + FederatedEMNIST")
         model = CNN_DropOut(False)
+        # logging.info("MoE + FederatedEMNIST")
+        # model = MoE(output_dim, args.moe_num_experts, args.moe_hidden_size, True, args.moe_k, device)
     elif model_name == "resnet18_gn" and args.dataset == "fed_cifar100":
         logging.info("ResNet18_GN + Federated_CIFAR100")
         model = resnet18()
@@ -390,6 +401,9 @@ def create_model(args, model_name, output_dim):
         model = MobileNetV3(model_mode="LARGE")
     elif model_name == "efficientnet":
         model = EfficientNet()
+    elif model_name == "moe":
+        logging.info("MoE")
+        model = MoE(output_dim, args.moe_num_experts, args.moe_hidden_size, True, args.moe_k, device)
 
     return model
 
@@ -477,7 +491,7 @@ if __name__ == "__main__":
     # create model.
     # Note if the model is DNN (e.g., ResNet), the training will be very slow.
     # In this case, please use our FedML distributed version (./fedml_experiments/distributed_fedavg)
-    model = create_model(args, model_name=args.model, output_dim=dataset[7])
+    model = create_model(args, model_name=args.model, output_dim=dataset[7], device=device)
 
     # start distributed training
     FedML_FedAvg_distributed(

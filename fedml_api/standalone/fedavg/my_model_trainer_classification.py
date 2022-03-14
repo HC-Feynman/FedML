@@ -36,8 +36,13 @@ class MyModelTrainer(ModelTrainer):
             for batch_idx, (x, labels) in enumerate(train_data):
                 x, labels = x.to(device), labels.to(device)
                 model.zero_grad()
-                log_probs = model(x)
-                loss = criterion(log_probs, labels)
+                if args.model == "moe":
+                    log_probs, aux_loss = model(x)
+                    loss = criterion(log_probs, labels)
+                    loss += aux_loss
+                else:
+                    log_probs = model(x)
+                    loss = criterion(log_probs, labels)
                 loss.backward()
 
                 # Uncommet this following line to avoid nan loss
