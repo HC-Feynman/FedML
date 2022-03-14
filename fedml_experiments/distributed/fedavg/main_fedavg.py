@@ -109,15 +109,15 @@ def add_args(parser):
                         gpu_util_file, gpu will not be used.",
     )
 
-    # parser.add_argument(
-    #     "--gpu_mapping_key", type=str, default="mapping_default", help="the key in gpu utilization file"
-    # )
+    parser.add_argument(
+        "--gpu_mapping_key", type=str, default="mapping_default", help="the key in gpu utilization file"
+    )
 
     # to use CPU
 
-    parser.add_argument(
-        "--gpu_mapping_key", type=str, default=None, help="the key in gpu utilization file"
-    )
+    # parser.add_argument(
+    #     "--gpu_mapping_key", type=str, default=None, help="the key in gpu utilization file"
+    # )
 
     parser.add_argument(
         "--grpc_ipconfig_path",
