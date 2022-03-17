@@ -16,13 +16,13 @@ class ModelTrainer(ABC):
     def set_id(self, trainer_id):
         self.id = trainer_id
 
-    @abstractmethod
-    def get_model_params(self):
-        pass
-
-    @abstractmethod
-    def set_model_params(self, model_parameters):
-        pass
+    # @abstractmethod
+    # def get_model_params(self):
+    #     pass
+    #
+    # @abstractmethod
+    # def set_model_params(self, model_parameters):
+    #     pass
 
     @abstractmethod
     def train(self, train_data, device, args=None):

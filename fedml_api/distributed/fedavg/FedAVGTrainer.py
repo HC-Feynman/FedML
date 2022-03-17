@@ -1,5 +1,5 @@
 from .utils import transform_tensor_to_list
-
+import logging
 
 class FedAVGTrainer(object):
 
@@ -19,8 +19,11 @@ class FedAVGTrainer(object):
         self.device = device
         self.args = args
 
-    def update_model(self, weights):
-        self.trainer.set_model_params(weights)
+    # def update_model(self, weights):
+    #     self.trainer.set_model_params(weights)
+
+    def update_feat_map(self, weights):
+        self.trainer.set_feat_map_params(weights)
 
     def update_dataset(self, client_index):
         self.client_index = client_index
@@ -30,14 +33,16 @@ class FedAVGTrainer(object):
 
     def train(self, round_idx = None):
         self.args.round_idx = round_idx
-        self.trainer.train(self.train_local, self.device, self.args)
+        self.trainer.train(self.train_local, self.device, self.args, self.args.epochs)
 
-        weights = self.trainer.get_model_params()
+        params = self.trainer.get_feat_map_expert_params()
 
         # transform Tensor to list
         if self.args.is_mobile == 1:
-            weights = transform_tensor_to_list(weights)
-        return weights, self.local_sample_number
+            logging.error("not implemented")
+            # weights = transform_tensor_to_list(weights)
+
+        return params, self.local_sample_number
 
     def test(self):
         # train data

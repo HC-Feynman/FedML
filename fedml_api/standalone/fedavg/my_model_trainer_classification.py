@@ -10,13 +10,32 @@ except ImportError:
 
 
 class MyModelTrainer(ModelTrainer):
-    def get_model_params(self):
-        return self.model.cpu().state_dict()
+    # def get_model_params(self):
+    #     return self.model.cpu().state_dict()
 
-    def set_model_params(self, model_parameters):
-        self.model.load_state_dict(model_parameters)
+    def get_feat_map_params(self):
+        return self.model.feat_map.cpu().state_dict()
 
-    def train(self, train_data, device, args):
+    def get_feat_map_expert_params(self):
+        params = dict()
+        params["feat_map"] = self.get_feat_map_params()
+        params["expert"] = self.model.expert.cpu().state_dict()
+        return params
+
+    # def set_model_params(self, model_parameters):
+    #     self.model.load_state_dict(model_parameters)
+
+    def set_feat_map_params(self, params):
+        self.model.feat_map.load_state_dict(params)
+
+    def set_expert_params(self, client_idx, params):
+        self.model.experts[client_idx].load_state_dict(params)
+
+    def train(self, train_data, device, args, epochs=None, optimizer=None):
+
+        if epochs is None:
+            epochs = args.epochs
+
         model = self.model
 
         model.to(device)
@@ -24,25 +43,21 @@ class MyModelTrainer(ModelTrainer):
 
         # train and update
         criterion = nn.CrossEntropyLoss().to(device)
-        if args.client_optimizer == "sgd":
-            optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, self.model.parameters()), lr=args.lr)
-        else:
-            optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.model.parameters()), lr=args.lr,
-                                         weight_decay=args.wd, amsgrad=True)
+        if optimizer is None:
+            if args.client_optimizer == "sgd":
+                optimizer = torch.optim.SGD(filter(lambda p: p.requires_grad, self.model.parameters()), lr=args.lr)
+            else:
+                optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, self.model.parameters()), lr=args.lr,
+                                             weight_decay=args.wd, amsgrad=True)
 
         epoch_loss = []
-        for epoch in range(args.epochs):
+        for epoch in range(epochs):
             batch_loss = []
             for batch_idx, (x, labels) in enumerate(train_data):
                 x, labels = x.to(device), labels.to(device)
                 model.zero_grad()
-                if args.model == "moe":
-                    log_probs, aux_loss = model(x)
-                    loss = criterion(log_probs, labels)
-                    loss += aux_loss
-                else:
-                    log_probs = model(x)
-                    loss = criterion(log_probs, labels)
+                log_probs = model(x)
+                loss = criterion(log_probs, labels)
                 loss.backward()
 
                 # Uncommet this following line to avoid nan loss

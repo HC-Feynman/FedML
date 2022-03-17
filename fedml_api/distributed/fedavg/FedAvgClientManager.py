@@ -32,13 +32,14 @@ class FedAVGClientManager(ClientManager):
                                               self.handle_message_receive_model_from_server)
 
     def handle_message_init(self, msg_params):
-        global_model_params = msg_params.get(MyMessage.MSG_ARG_KEY_MODEL_PARAMS)
+        feat_map_params = msg_params.get(MyMessage.MSG_ARG_KEY_MODEL_PARAMS)
         client_index = msg_params.get(MyMessage.MSG_ARG_KEY_CLIENT_INDEX)
 
         if self.args.is_mobile == 1:
-            global_model_params = transform_list_to_tensor(global_model_params)
+            logging.error("not implemented!")
+            # global_model_params = transform_list_to_tensor(global_model_params)
 
-        self.trainer.update_model(global_model_params)
+        self.trainer.update_feat_map(feat_map_params)
         self.trainer.update_dataset(int(client_index))
         self.round_idx = 0
         self.__train()
@@ -49,13 +50,14 @@ class FedAVGClientManager(ClientManager):
 
     def handle_message_receive_model_from_server(self, msg_params):
         logging.info("handle_message_receive_model_from_server.")
-        model_params = msg_params.get(MyMessage.MSG_ARG_KEY_MODEL_PARAMS)
+        feat_map_params = msg_params.get(MyMessage.MSG_ARG_KEY_MODEL_PARAMS)
         client_index = msg_params.get(MyMessage.MSG_ARG_KEY_CLIENT_INDEX)
 
         if self.args.is_mobile == 1:
-            model_params = transform_list_to_tensor(model_params)
+            logging.error("not implemented!")
+            # model_params = transform_list_to_tensor(model_params)
 
-        self.trainer.update_model(model_params)
+        self.trainer.update_feat_map(feat_map_params)
         self.trainer.update_dataset(int(client_index))
         self.round_idx += 1
         self.__train()
@@ -71,5 +73,5 @@ class FedAVGClientManager(ClientManager):
 
     def __train(self):
         logging.info("#######training########### round_id = %d" % self.round_idx)
-        weights, local_sample_num = self.trainer.train(self.round_idx)
-        self.send_model_to_server(0, weights, local_sample_num)
+        params, local_sample_num = self.trainer.train(self.round_idx)
+        self.send_model_to_server(0, params, local_sample_num)

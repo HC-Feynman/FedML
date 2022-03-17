@@ -10,11 +10,11 @@ except ImportError:
 
 
 class MyModelTrainer(ModelTrainer):
-    def get_model_params(self):
-        return self.model.cpu().state_dict()
-
-    def set_model_params(self, model_parameters):
-        self.model.load_state_dict(model_parameters)
+    # def get_model_params(self):
+    #     return self.model.cpu().state_dict()
+    #
+    # def set_model_params(self, model_parameters):
+    #     self.model.load_state_dict(model_parameters)
 
     def train(self, train_data, device, args):
         model = self.model

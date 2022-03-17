@@ -31,7 +31,7 @@ from fedml_api.data_preprocessing.cifar10.data_loader import load_partition_data
 from fedml_api.data_preprocessing.cifar100.data_loader import load_partition_data_cifar100
 from fedml_api.data_preprocessing.cinic10.data_loader import load_partition_data_cinic10
 
-from moe.moe import MoE
+from moe.moe import MoE, MoE_Client
 
 from fedml_api.model.cv.cnn import CNN_DropOut
 from fedml_api.model.cv.resnet_gn import resnet18
@@ -51,7 +51,7 @@ def add_args(parser):
     return a parser added with args required by fit
     """
     # Training settings
-    parser.add_argument("--model", type=str, default="mobilenet", metavar="N", help="neural network used in training")
+    parser.add_argument("--model", type=str, default="moe-v1", metavar="N", help="neural network used in training")
 
     parser.add_argument("--dataset", type=str, default="cifar10", metavar="N", help="dataset used for training")
 
@@ -70,7 +70,7 @@ def add_args(parser):
     )
 
     parser.add_argument(
-        "--client_num_in_total", type=int, default=1000, metavar="NN", help="number of workers in a distributed cluster"
+        "--client_num_in_total", type=int, default=20, metavar="NN", help="number of workers in a distributed cluster"
     )
 
     parser.add_argument("--client_num_per_round", type=int, default=4, metavar="NN", help="number of workers")
@@ -135,9 +135,12 @@ def add_args(parser):
 
 
     ## for MoE
-    parser.add_argument("--moe_num_experts", type=int, default=3,help="number of experts in MoE")
+
+    # parser.add_argument("--moe_num_experts", type=int, default=3,help="number of experts in MoE") # should equal to number of devices here
     parser.add_argument("--moe_k", type=int, default=2, help="k in MoE")
     parser.add_argument("--moe_hidden_size", type=int, default=128)
+
+    parser.add_argument("--global_epochs", type=int, default=2, help="number of epochs that server train the gating network")
 
     parser.add_argument("--ci", type=int, default=0, help="CI")
     args = parser.parse_args()
@@ -365,7 +368,7 @@ def load_data(args, dataset_name):
     return dataset
 
 
-def create_model(args, model_name, output_dim, device=None):
+def create_model(args, model_name, output_dim, device=None, process_id=None):
     logging.info("create_model. model_name = %s, output_dim = %s" % (model_name, output_dim))
     model = None
     if model_name == "lr" and args.dataset == "mnist":
@@ -404,6 +407,13 @@ def create_model(args, model_name, output_dim, device=None):
     elif model_name == "moe":
         logging.info("MoE")
         model = MoE(output_dim, args.moe_num_experts, args.moe_hidden_size, True, args.moe_k, device)
+    elif model_name == "moe-one-shot":
+        if process_id == 0:
+            logging.info("create_model: moe for the server")
+            model = MoE(output_dim, args.client_num_in_total, args.moe_hidden_size, True, args.moe_k, device)
+        else:
+            logging.info("create_model: moe for the client")
+            model = MoE_Client(output_dim, args.moe_hidden_size, device)
 
     return model
 
@@ -491,7 +501,7 @@ if __name__ == "__main__":
     # create model.
     # Note if the model is DNN (e.g., ResNet), the training will be very slow.
     # In this case, please use our FedML distributed version (./fedml_experiments/distributed_fedavg)
-    model = create_model(args, model_name=args.model, output_dim=dataset[7], device=device)
+    model = create_model(args, model_name=args.model, output_dim=dataset[7], device=device,process_id = process_id)
 
     # start distributed training
     FedML_FedAvg_distributed(

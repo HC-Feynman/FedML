@@ -289,3 +289,20 @@ class MoE(nn.Module):
         expert_outputs = [self.experts[i](expert_inputs[i]) for i in range(self.num_experts)]
         y = dispatcher.combine(expert_outputs)
         return y, loss
+
+
+class MoE_Client(nn.Module):
+    def __init__(self, num_classes, hidden_size, device="cpu"):
+        super(MoE_Client, self).__init__()
+        self.device = device
+        self.num_classes = num_classes
+        self.hidden_size = hidden_size
+        self.feat_map = ResNet18FeatureMap()
+        self.input_size = self.feat_map.out_put_dim
+        self.expert = MLP(self.input_size, self.num_classes, self.hidden_size)
+
+    def forward(self, x):
+        x = self.feat_map(x)
+        x = self.expert(x)
+        return x
+
