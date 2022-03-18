@@ -75,7 +75,10 @@ class MyModelTrainer(ModelTrainer):
             for batch_idx, (x, target) in enumerate(test_data):
                 x = x.to(device)
                 target = target.to(device)
-                pred = model(x)
+                if args.model == "moe":
+                    pred, _ = model(x)
+                else:
+                    pred = model(x)
                 loss = criterion(pred, target)
 
                 _, predicted = torch.max(pred, -1)
