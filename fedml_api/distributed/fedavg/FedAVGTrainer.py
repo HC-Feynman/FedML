@@ -39,8 +39,7 @@ class FedAVGTrainer(object):
 
         # transform Tensor to list
         if self.args.is_mobile == 1:
-            logging.error("not implemented")
-            # weights = transform_tensor_to_list(weights)
+            params = transform_tensor_to_list(params)
 
         return params, self.local_sample_number
 

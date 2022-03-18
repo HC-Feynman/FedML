@@ -37,8 +37,7 @@ class FedAVGServerManager(ServerManager):
         self.client_indexes = client_indexes
         feat_map_params = self.aggregator.get_feat_map_params()
         if self.args.is_mobile == 1:
-            logging.error("not implemented!")
-            # global_model_params = transform_tensor_to_list(global_model_params)
+            feat_map_params = transform_tensor_to_list(feat_map_params)
         for process_id in range(1, self.size):
             self.send_message_init_config(process_id, feat_map_params, self.client_indexes[process_id - 1])
 
@@ -84,8 +83,7 @@ class FedAVGServerManager(ServerManager):
             print('indexes of clients: ' + str(client_indexes))
             print("size = %d" % self.size)
             if self.args.is_mobile == 1:
-                logging.error("not implemented")
-                # global_model_params = transform_tensor_to_list(global_model_params)
+                global_feat_map_params = transform_tensor_to_list(global_feat_map_params)
 
             for receiver_id in range(1, self.size):
                 self.send_message_sync_model_to_client(receiver_id, global_feat_map_params,
