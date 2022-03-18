@@ -2,6 +2,7 @@ import logging
 
 import torch
 from torch import nn
+from moe.moe import MoE
 
 try:
     from fedml_core.trainer.model_trainer import ModelTrainer
@@ -56,9 +57,14 @@ class MyModelTrainer(ModelTrainer):
             for batch_idx, (x, labels) in enumerate(train_data):
                 x, labels = x.to(device), labels.to(device)
                 model.zero_grad()
-                log_probs = model(x)
-                loss = criterion(log_probs, labels)
-                loss.backward()
+                if isinstance(model, MoE):
+                    log_probs, aux_loss = model(x)
+                    loss = criterion(log_probs, labels) + aux_loss
+                    loss.backward()
+                else:
+                    log_probs = model(x)
+                    loss = criterion(log_probs, labels)
+                    loss.backward()
 
                 # Uncommet this following line to avoid nan loss
                 # torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
