@@ -36,8 +36,7 @@ class FedAVGClientManager(ClientManager):
         client_index = msg_params.get(MyMessage.MSG_ARG_KEY_CLIENT_INDEX)
 
         if self.args.is_mobile == 1:
-            logging.error("not implemented!")
-            # global_model_params = transform_list_to_tensor(global_model_params)
+            feat_map_params = transform_list_to_tensor(feat_map_params)
 
         self.trainer.update_feat_map(feat_map_params)
         self.trainer.update_dataset(int(client_index))
@@ -54,8 +53,7 @@ class FedAVGClientManager(ClientManager):
         client_index = msg_params.get(MyMessage.MSG_ARG_KEY_CLIENT_INDEX)
 
         if self.args.is_mobile == 1:
-            logging.error("not implemented!")
-            # model_params = transform_list_to_tensor(model_params)
+            feat_map_params = transform_list_to_tensor(feat_map_params)
 
         self.trainer.update_feat_map(feat_map_params)
         self.trainer.update_dataset(int(client_index))

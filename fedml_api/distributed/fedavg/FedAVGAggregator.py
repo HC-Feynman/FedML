@@ -6,6 +6,7 @@ import time
 import numpy as np
 import torch
 import wandb
+from .utils import transform_tensor_to_list, transform_list_to_tensor
 
 
 class FedAVGAggregator(object):
@@ -70,8 +71,9 @@ class FedAVGAggregator(object):
 
         for idx in range(self.worker_num):
             if self.args.is_mobile == 1:
-                logging.info("not implemented")
-                # self.model_dict[idx] = transform_list_to_tensor(self.model_dict[idx])
+                self.model_dict[idx]["feat_map"] = transform_list_to_tensor(self.model_dict[idx]["feat_map"])
+                self.model_dict[idx]["expert"] = transform_list_to_tensor(self.model_dict[idx]["expert"])
+
             model_list.append((self.sample_num_dict[idx], self.model_dict[idx]))
             training_num += self.sample_num_dict[idx]
 
