@@ -407,7 +407,7 @@ def create_model(args, model_name, output_dim, device=None, process_id=None):
     elif model_name == "moe":
         logging.info("MoE")
         model = MoE(output_dim, args.moe_num_experts, args.moe_hidden_size, True, args.moe_k, device)
-    elif model_name == "moe-one-shot":
+    elif model_name == "moe-v1":
         if process_id == 0:
             logging.info("create_model: moe for the server")
             model = MoE(output_dim, args.client_num_in_total, args.moe_hidden_size, True, args.moe_k, device)
