@@ -61,7 +61,12 @@ class FedAVGClientManager(ClientManager):
         self.__train()
         if self.round_idx == self.num_rounds - 1:
             # post_complete_message_to_sweep_process(self.args)
-            self.finish()
+
+            pass
+            # Hui: the following line was not commented.
+            # I comment it because it will shut down the whole MPI, which should be leaved to the server side
+            # self.finish()
+
 
     def send_model_to_server(self, receive_id, weights, local_sample_num):
         message = Message(MyMessage.MSG_TYPE_C2S_SEND_MODEL_TO_SERVER, self.get_sender_id(), receive_id)
